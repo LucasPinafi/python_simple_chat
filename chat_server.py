@@ -1,10 +1,8 @@
-from audioop import add
 import threading 
 import socket
 from typing import List
 from time import sleep
 
-# ! 1 - O usuário deverá tentar se conectar ao servidor
 
 SERVER = socket.gethostbyname(socket.gethostname())
 PORT = 5050

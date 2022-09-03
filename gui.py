@@ -69,8 +69,6 @@ class Gui:
 
 if __name__ == "__main__":
     gui = Gui()
-    gui_thread = threading.Thread(target=gui.show_gui, args=())
-    gui_thread.start()
-
+    gui.show_gui()
     print('por aqui vai?')
 

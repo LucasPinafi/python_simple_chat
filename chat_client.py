@@ -1,9 +1,9 @@
 import socket
 import threading
-from gui import Gui
+from typing import List
 
 PORT = 5050
-SERVER = '172.15.4.20'  #'192.168.1.15' -> casa
+SERVER = '192.168.1.15' # -> casa
 ADDR = (SERVER, PORT)
 HEADER = 64
 FORMAT = 'utf-8'
@@ -11,7 +11,8 @@ NAME = input('Digite seu nome: ')
 ONLY_ONE_USER = '__001__'
 
 client = None
-gui = Gui()
+messages_sent: List[str] = []
+messages_obt: List[str] = []
 
 def get_send_lens(msg: str):
     msg_len = len(msg)
@@ -33,13 +34,12 @@ def server_connect():
     start_chat()
     
 def start_chat():
+    global client
     while True:
-        global client
         msg: str = client.recv(2048).decode(FORMAT)
         if msg == ONLY_ONE_USER:
             print('Waiting for another user...')
         else:
-            print('lol')
             break
     
     send = threading.Thread(target=send_messages, args=())
@@ -56,6 +56,8 @@ def send_messages():
         
         client.send(msg_len)
         client.send(msg_send)
+        
+        messages_sent.append(msg)
     
 def get_messages():
     while True:
@@ -65,8 +67,9 @@ def get_messages():
             msg = client.recv(msg_len)
             msg = msg.decode(FORMAT)
             print(f'\n[you get it...] {msg}')
+            messages_obt.append(msg)
            
-if __name__ == "__main__":  
-    server_connect()
-    gui.show_gui()
+service_thread = threading.Thread(target=server_connect, args=())  
+service_thread.start()
+   
     
