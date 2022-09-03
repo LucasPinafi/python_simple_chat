@@ -43,15 +43,15 @@ def run():
     while threads[0].is_alive():
         if len(users) == 1:
             send_wait_message(users[0].conn, ONLY_ONE_USER)
-            t += 1
         if len(users) == 2:
             break
         sleep(2)
         print(f'[WAITING] for {t} seconds')
+        t += 2
         
     sleep(2)
-    send_wait_message(users[0].conn, READY_TO_GO)
-    send_wait_message(users[1].conn, READY_TO_GO)
+    send_wait_message(users[0].conn, READY_TO_GO + users[1].name)
+    send_wait_message(users[1].conn, READY_TO_GO + users[0].name)
     print('Chat Started...')
     threads.append(threading.Thread(target=messages, args=(users[0].conn, users[0].addr)))
     threads.append(threading.Thread(target=messages, args=(users[1].conn, users[1].addr)))
@@ -95,6 +95,7 @@ def messages(conn, addr):
                 send_conn = users[1].conn
             else:
                 send_conn = users[0].conn
+                
             msg_len = str(msg_len).encode(FORMAT)
             send_conn.send(msg_len)
             send_conn.send(msg)

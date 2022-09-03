@@ -1,7 +1,6 @@
 import socket
 import threading
 from tkinter import ttk
-from typing import List
 import tkinter as tk
 from datetime import datetime
 
@@ -18,6 +17,7 @@ READY_TO_GO = '__002__'
 client = None
 lines = 1
 user_name = ""
+friend_name = ""
 
 def get_name() -> None:
     global user_name, lines
@@ -30,8 +30,11 @@ def get_name() -> None:
         chat_text.config(state=tk.DISABLED)
         send_text.config(state=tk.NORMAL)
         name_entry.config(state=tk.DISABLED)
+        
+        
 
 def send_messages() -> None:
+    print('aqui')
     if send_text.get():
         now = datetime.now()
         msg = f'\n[You sent at {now.hour}:{now.minute}:{now.second}]: ' + send_text.get()
@@ -43,13 +46,16 @@ def send_messages() -> None:
         client.send(msg_send)
 
 def get_messages() -> None:
+    global friend_name
     while True:
         msg_len = client.recv(HEADER).decode(FORMAT)
         if msg_len:
+            now = datetime.now()
             msg_len = int(msg_len)
             msg = client.recv(msg_len)
             msg = msg.decode(FORMAT)
-            put_messages_screen(msg)
+            new_message = f'\n[{friend_name} at {now.hour}:{now.minute}:{now.second}]: ' + msg
+            put_messages_screen(new_message)
             
 def put_messages_screen(new_message: str) -> None:
     global lines
@@ -71,17 +77,18 @@ def server_coonect() -> None:
     client.connect(ADDR)
     t = 0 
     while user_name == "":
-        name = user_name.encode(FORMAT)
-        send_name_len = get_send_len(name)
-        client.send(send_name_len)
-        client.send(name)
-        print(user_name + " ue " + str(t))
-        t += 1
+        continue
+    name = user_name.encode(FORMAT)
+    send_name_len = get_send_len(name)
+    client.send(send_name_len)
+    client.send(name)
+    print(user_name + " ue " + str(t))
+    t += 1
     
     start_chat()
 
 def start_chat() -> None:
-    global lines
+    global lines, friend_name
     while True:
         msg: str = client.recv(2048)
         if msg:
@@ -92,7 +99,9 @@ def start_chat() -> None:
                 chat_text.config(state=tk.DISABLED)
                 lines += 1
                 print(lines)
-            if msg == READY_TO_GO:
+            if READY_TO_GO in msg:
+                friend_name = msg[7:]
+                print("PRONTOO")
                 break
         
     messages_get = threading.Thread(target=get_messages, args=())    

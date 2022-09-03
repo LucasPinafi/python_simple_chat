@@ -66,8 +66,7 @@ def get_messages():
             msg_len = int(msg_len)
             msg = client.recv(msg_len)
             msg = msg.decode(FORMAT)
-            print(f'\n[you get it...] {msg}')
-            messages_obt.append(msg)
+            print(f'\n[you get it...]: {msg}')
            
 service_thread = threading.Thread(target=server_connect, args=())  
 service_thread.start()
